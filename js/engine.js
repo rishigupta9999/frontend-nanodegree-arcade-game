@@ -95,6 +95,12 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+
+        for (i = 0; i < allEnemies.length; i++) {
+            if (allEnemies[i].zombie) {
+                allEnemies[i] = new Enemy();
+            }
+        }
     }
 
     /* This function initially draws the "game level", it will then call

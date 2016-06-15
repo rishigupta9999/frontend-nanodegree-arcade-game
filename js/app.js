@@ -1,3 +1,7 @@
+function getRandomIntInclusive(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -6,6 +10,23 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+
+    const TILE_WIDTH = 101;
+    const TILE_HEIGHT = 83;
+    const NUM_LANES = 3;
+
+    this.x = -TILE_WIDTH;
+    this.y = (Math.floor(Math.random() * NUM_LANES)) + 1;
+    this.y = this.y * TILE_HEIGHT - 20
+
+    const MIN_SPEED = 200;
+    const MAX_SPEED = 300;
+
+    this.speed = getRandomIntInclusive(MIN_SPEED, MAX_SPEED);
+
+    console.log(this.speed);
+
+    this.zombie = false;
 };
 
 // Update the enemy's position, required method for game
@@ -14,6 +35,12 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+
+    this.x += this.speed * dt;
+
+    if (this.x > 505) {
+        this.zombie = true;
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -44,3 +71,26 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+var Environment = function () {
+
+}
+
+Environment.prototype.init = function() {
+
+    const NUM_ENEMIES = 5;
+
+    allEnemies = [];
+
+    for (i = 0; i < NUM_ENEMIES; i++) {
+        allEnemies.push(new Enemy());
+    }
+
+    player = { };
+    player.update = function(dt) { };//new Enemy();
+    player.render = function() { };
+
+}
+
+environment = new Environment();
+environment.init();
