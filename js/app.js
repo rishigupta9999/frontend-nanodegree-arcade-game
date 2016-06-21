@@ -43,7 +43,7 @@ var Enemy = function() {
 
     const NUM_LANES = 3;
 
-    this.x = -(TILE_WIDTH + getRandomIntInclusive(0, 200));
+    this.x = -(getRandomIntInclusive(0, TILE_WIDTH * 4));
     this.tile_y = (Math.floor(Math.random() * NUM_LANES)) + 2;
     this.y = this.tile_y * TILE_HEIGHT - TILE_Y_OFFSET;
 
@@ -77,16 +77,14 @@ Enemy.prototype.update = function(dt) {
     this.boundingRect.y = this.y;
 
     if ((this.tile_y == player.tile_y) && (this.boundingRect.intersects(player.boundingRect))) {
-        player.reset();
+        environment.roundEnd(false);
+        environment.reset();
     }
 };
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-
-    //ctx.rect(this.boundingRect.x, this.boundingRect.y, this.boundingRect.width, this.boundingRect.height);
-    //ctx.stroke();
 };
 
 // Now write your own player class
@@ -116,14 +114,27 @@ Player.prototype.update = function(dt) {
     this.boundingRect.y = this.y + PLAYER_OFFSET_Y;
 
     if (this.tile_y == 0) {
-        player.reset();
+        environment.roundEnd(true)
+        environment.reset();
     }
 }
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     //ctx.rect(this.x + PLAYER_OFFSET_X, this.y + PLAYER_OFFSET_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
-    //ctx.stroke();
+    //ctx.stroke();\
+
+    ctx.strokeText("Wins", 15, 80);
+    ctx.fillText("Wins", 15, 80);
+
+    ctx.strokeText(environment.wins.toString(), 110, 80);
+    ctx.fillText(environment.wins.toString(), 110, 80);
+
+    ctx.strokeText("Losses", 15, 100);
+    ctx.fillText("Losses", 15, 100);
+
+    ctx.strokeText(environment.losses.toString(), 110, 100);
+    ctx.fillText(environment.losses.toString(), 110, 100);
 }
 
 Player.prototype.handleInput = function(keyCode) {
@@ -163,7 +174,8 @@ document.addEventListener('keyup', function(e) {
 });
 
 var Environment = function () {
-
+    this.wins = 0;
+    this.losses = 0;
 }
 
 Environment.prototype.init = function() {
@@ -178,6 +190,29 @@ Environment.prototype.init = function() {
 
     player = new Player
 
+    ctx.font = "normal 18px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 4;
+    ctx.miterLimit = 2;
+
+    this.reset();
+}
+
+Environment.prototype.reset = function() {
+    player.reset();
+    this.roundStart = Date.now();
+}
+
+Environment.prototype.roundEnd = function(win) {
+    if (win)
+    {
+        this.wins++;
+    }
+    else
+    {
+        this.losses++;
+    }
 }
 
 environment = new Environment();
