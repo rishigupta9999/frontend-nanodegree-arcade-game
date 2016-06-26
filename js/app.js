@@ -2,34 +2,52 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const TILE_WIDTH = 101;
-const TILE_HEIGHT = 83;
-const TILE_Y_OFFSET = 25;
+var TILE_WIDTH = 101;
+var TILE_HEIGHT = 83;
+var TILE_Y_OFFSET = 25;
 
-const PLAYER_WIDTH = 67;
-const PLAYER_HEIGHT = 78;
-const PLAYER_OFFSET_X = 16;
-const PLAYER_OFFSET_Y = 64;
+var PLAYER_WIDTH = 67;
+var PLAYER_HEIGHT = 78;
+var PLAYER_OFFSET_X = 16;
+var PLAYER_OFFSET_Y = 64;
 
-const ENEMY_WIDTH = 99;
-const ENEMY_HEIGHT = 68;
+var ENEMY_WIDTH = 99;
+var ENEMY_HEIGHT = 68;
+
+// pseudoclassical inheritance
+// subClass will inherit from superClass
+inherit = function(subClass,superClass) {
+   subClass.prototype = Object.create(superClass.prototype); // delegate to prototype
+   subClass.prototype.constructor = subClass; // set constructor on prototype
+};
 
 var Rect = function(x, y, width, height) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-}
+};
 
 Rect.prototype.intersects = function(collisionRect) {
     return  (this.ptInRect(collisionRect.x, collisionRect.y)) || 
             (this.ptInRect(collisionRect.x + collisionRect.width, collisionRect.y)) ||
             (this.ptInRect(collisionRect.x, collisionRect.y + collisionRect.height)) ||
             (this.ptInRect(collisionRect.x + collisionRect.width, collisionRect.y + collisionRect.height));
-}
+};
 
 Rect.prototype.ptInRect = function(x, y) {
     return (x >= this.x) && (x <= (this.x + this.width)) && (y >= this.y) && (y <= (this.y + this.height));
+};
+
+var GameEntity = function() {
+    this.x = 0;
+    this.y = 0;
+
+    this.sprite = null;
+};
+
+GameEntity.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 // Enemies our player must avoid
@@ -60,6 +78,8 @@ var Enemy = function() {
     this.zombie = false;
 };
 
+inherit(Enemy, GameEntity);
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
@@ -82,11 +102,6 @@ Enemy.prototype.update = function(dt) {
     }
 };
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
@@ -97,6 +112,8 @@ var Player = function () {
 
     this.reset()
 }
+
+inherit(Player, GameEntity);
 
 Player.prototype.reset = function() {
     this.tile_x = 2;
@@ -120,9 +137,7 @@ Player.prototype.update = function(dt) {
 }
 
 Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    //ctx.rect(this.x + PLAYER_OFFSET_X, this.y + PLAYER_OFFSET_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
-    //ctx.stroke();\
+    GameEntity.prototype.render.call(this);
 
     ctx.strokeText("Wins", 15, 80);
     ctx.fillText("Wins", 15, 80);
